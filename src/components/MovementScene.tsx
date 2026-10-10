@@ -2,10 +2,10 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
 import { Group, Mesh, SRGBColorSpace, MathUtils } from 'three';
-import watchAsset from '@/assets/movement/watch.webp.asset.json';
-import engineAsset from '@/assets/movement/engine.webp.asset.json';
-import tourbillonAsset from '@/assets/movement/tourbillon.webp.asset.json';
-import reserveAsset from '@/assets/movement/reserve.webp.asset.json';
+import watchAsset from '@/assets/movement/watch-full.webp.asset.json';
+import engineAsset from '@/assets/movement/engine-full.webp.asset.json';
+import tourbillonAsset from '@/assets/movement/tourbillon-full.webp.asset.json';
+import reserveAsset from '@/assets/movement/reserve-full.webp.asset.json';
 
 const features = [
   { name: 'W16 Engine', x: .016, y: -.422, width: 1.188, height: 1.094, url: engineAsset.url, pinX: -.8, pinY: -.6 },

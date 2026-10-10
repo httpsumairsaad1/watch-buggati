@@ -2,7 +2,7 @@ import { lazy, Suspense, useState } from 'react';
 import { ClientOnly } from '@tanstack/react-router';
 import { ArrowUpRight, Gauge, Cog, RotateCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import watchAsset from '@/assets/movement/watch.webp.asset.json';
+import watchAsset from '@/assets/movement/watch-full.webp.asset.json';
 
 const MovementScene = lazy(() => import('@/components/MovementScene'));
 
