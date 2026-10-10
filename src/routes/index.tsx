@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { WatchSequence } from '@/components/WatchSequence';
 import { MovementExplorer } from '@/components/MovementExplorer';
 import { ViewingForm } from '@/components/ViewingForm';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 const WatchAtmosphere = lazy(() => import('@/components/WatchAtmosphere'));
 
@@ -42,7 +43,7 @@ function Index() {
       <Button variant="ghost" size="icon" className="mobile-menu" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</Button>
     </header>
     <section id="experience" className="hero-track"><div className="hero-stage">
-      <ClientOnly fallback={null}><Suspense fallback={null}><WatchAtmosphere /></Suspense></ClientOnly>
+      <ClientOnly fallback={null}><ErrorBoundary fallback={null}><Suspense fallback={null}><WatchAtmosphere /></Suspense></ErrorBoundary></ClientOnly>
       <div className="hero-title"><div className="eyebrow">Jacob &amp; Co. × Bugatti</div><h1>CHIRON TOURBILLON<span>ROSE GOLD</span></h1></div>
       <WatchSequence />
       <div className="hero-story"><div className="edition-label"><i />Limited edition · 72 pieces</div><h2>SHAPED LIKE<br />A HYPERCAR.<br /><span>DESIGNED<br />FOR ELATION.</span></h2><div className="story-line" /><p>The soul of a Bugatti. The precision of Swiss watchmaking. An extraordinary union of high-performance engineering and haute horlogerie.</p><Button variant="luxury" asChild><a href="#movement">Discover the masterpiece <ArrowUpRight /></a></Button><div className="reference">REF. BU200.40.AA.AA.C</div></div>
