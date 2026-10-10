@@ -4,6 +4,8 @@ import { ArrowUpRight, Gauge, Cog, RotateCw, ChevronLeft, ChevronRight } from 'l
 import { Button } from '@/components/ui/button';
 import watchAsset from '@/assets/movement/watch-full.webp.asset.json';
 
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+
 const MovementScene = lazy(() => import('@/components/MovementScene'));
 
 const details = [
@@ -21,7 +23,7 @@ export function MovementExplorer() {
     <div className="explorer-layout movement-layout">
       <div className="movement-stage">
         <img className="movement-poster" src={watchAsset.url} alt="Front view of the rose gold Bugatti Chiron Tourbillon movement" />
-        <ClientOnly fallback={null}><Suspense fallback={null}><MovementScene active={active} onSelect={setActive} /></Suspense></ClientOnly>
+        <ClientOnly fallback={null}><ErrorBoundary fallback={null}><Suspense fallback={null}><MovementScene active={active} onSelect={setActive} /></Suspense></ErrorBoundary></ClientOnly>
         <div className="movement-caption"><span>JCAM37</span><span>578 components · 51 jewels</span></div>
       </div>
       <div className="movement-information"><div className="explorer-tabs" role="tablist" aria-label="Movement components">{details.map((d, i) => <Button key={d.tab} variant="ghost" role="tab" id={`tab-${i}`} aria-controls="movement-panel" aria-selected={i === active} tabIndex={i === active ? 0 : -1} onClick={() => setActive(i)} onKeyDown={e => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); const next = (active + (e.key === 'ArrowRight' ? 1 : 2)) % 3; setActive(next); document.getElementById(`tab-${next}`)?.focus(); } }}>{d.tab}</Button>)}</div>
