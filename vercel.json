@@ -1,3 +1,6 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/__l5e/(.*)", "destination": "https://c--5e0de232-6169-4f20-a67d-882d3f3fc653-prod.lovable.cloud/__l5e/$1", "external": true },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }

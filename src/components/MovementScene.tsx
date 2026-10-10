@@ -1,8 +1,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Html, useTexture } from '@react-three/drei';
+import { useTexture } from '@react-three/drei';
 import { Group, Mesh, SRGBColorSpace, MathUtils } from 'three';
-import { Button } from '@/components/ui/button';
 import watchAsset from '@/assets/movement/watch.webp.asset.json';
 import engineAsset from '@/assets/movement/engine.webp.asset.json';
 import tourbillonAsset from '@/assets/movement/tourbillon.webp.asset.json';
@@ -47,9 +46,6 @@ function DepthWatch({ active, onSelect, reduced }: { active: number; onSelect: (
         <planeGeometry args={[feature.width, feature.height]} />
         <meshBasicMaterial map={textures[index + 1] ?? null} transparent toneMapped={false} />
       </mesh>
-      <Html position={[feature.pinX, feature.pinY, .85]} center zIndexRange={[8, 1]}>
-        <Button variant="ghost" size="icon" className={`movement-pin${index === active ? ' is-active' : ''}`} aria-label={`Inspect ${feature.name}`} aria-pressed={index === active} title={feature.name} onClick={() => onSelect(index)}>{String(index + 1).padStart(2, '0')}</Button>
-      </Html>
     </group>)}
   </group>;
 }
