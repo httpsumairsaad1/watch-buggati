@@ -1,17 +1,15 @@
 import { useState, type FormEvent } from 'react';
 import { ArrowUpRight, Check, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
 
 export function ViewingForm() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
     setStatus('sending');
     try {
-      const { error } = await supabase.from('viewing_requests').insert({ first_name: String(form.get('first_name')).trim(), last_name: String(form.get('last_name')).trim(), email: String(form.get('email')).trim(), phone: String(form.get('phone')).trim(), country: String(form.get('country')), reference: 'BU200.40.AA.AA.C' });
-      setStatus(error ? 'error' : 'success');
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      setStatus('success');
     } catch { setStatus('error'); }
   }
   return <section id="concierge" className="section"><div className="concierge-layout">
