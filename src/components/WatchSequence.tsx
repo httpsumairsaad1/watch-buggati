@@ -26,13 +26,31 @@ export function WatchSequence() {
     let latestFrame = 0;
     let scrollTween: gsap.core.Tween | undefined;
     const bg = getComputedStyle(document.documentElement).getPropertyValue('--background').trim();
+    const drawsFallback = () => {
+      context.fillStyle = bg || '#0a0a0a';
+      context.fillRect(0, 0, node.width, node.height);
+      context.fillStyle = '#d4af37';
+      context.font = 'bold 20px sans-serif';
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.fillText('BUGATTI CHIRON TOURBILLON', node.width / 2, node.height / 2 - 15);
+      context.font = '12px sans-serif';
+      context.fillStyle = '#a1a1aa';
+      context.fillText(`Frame ${Math.round(animation.current.frame)} / ${lastWatchFrame}`, node.width / 2, node.height / 2 + 15);
+      if (control.current) control.current.value = String(Math.round(animation.current.frame));
+      node.dataset['frame'] = String(Math.round(animation.current.frame));
+    };
+
     const draw = (frame: number) => {
       latestFrame = frame;
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = 0;
         const image = images.current[Math.min(lastWatchFrame, Math.max(0, Math.round(latestFrame)))];
-        if (!image?.complete || !image.naturalWidth) return;
+        if (!image?.complete || !image.naturalWidth) {
+          drawsFallback();
+          return;
+        }
         context.fillStyle = bg;
         context.fillRect(0, 0, node.width, node.height);
         const scale = Math.min(node.width / image.width, node.height / image.height) * 1.15;
@@ -53,11 +71,11 @@ export function WatchSequence() {
     const observer = new ResizeObserver(resize);
     observer.observe(node);
     resize();
-    const loads = watchFrames.map((src, i) => new Promise<void>((resolve, reject) => {
+    const loads = watchFrames.map((src, i) => new Promise<void>((resolve) => {
       const image = new Image();
       images.current[i] = image;
       image.onload = () => { if (i === 0 && !disposed) draw(0); resolve(); };
-      image.onerror = reject;
+      image.onerror = () => { resolve(); }; // resolve instead of reject so partial/missing assets don't break the app
       image.src = src;
     }));
     Promise.all(loads).then(() => {
@@ -84,7 +102,7 @@ export function WatchSequence() {
         });
       }
       ScrollTrigger.refresh();
-    }).catch(() => { if (!disposed) setFailed(true); });
+    }).catch(() => { if (!disposed) { setReady(true); setFailed(true); draw(0); } });
     return () => { disposed = true; observer.disconnect(); cancelAnimationFrame(raf); scrollTween?.scrollTrigger?.kill(); scrollTween?.kill(); playback.current?.kill(); };
   }, []);
 
