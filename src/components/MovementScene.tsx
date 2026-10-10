@@ -18,15 +18,57 @@ function DepthWatch({ active, onSelect, reduced }: { active: number; onSelect: (
   const group = useRef<Group>(null);
   const layers = useRef<Array<Mesh | null>>([]);
   const elapsed = useRef(0);
+  const dragOffset = useRef({ x: 0, y: 0 });
+  const isDragging = useRef(false);
+  const startPos = useRef({ x: 0, y: 0 });
+
   useEffect(() => { textures.forEach(texture => { texture.colorSpace = SRGBColorSpace; }); }, [textures]);
+
+  useEffect(() => {
+    const handlePointerDown = (e: PointerEvent) => {
+      isDragging.current = true;
+      startPos.current = { x: e.clientX, y: e.clientY };
+    };
+    const handlePointerMove = (e: PointerEvent) => {
+      if (!isDragging.current) return;
+      const dx = (e.clientX - startPos.current.x) / 300;
+      const dy = (e.clientY - startPos.current.y) / 300;
+      dragOffset.current = {
+        x: MathUtils.clamp(dx, -0.6, 0.6),
+        y: MathUtils.clamp(dy, -0.4, 0.4),
+      };
+    };
+    const handlePointerUp = () => {
+      isDragging.current = false;
+    };
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointercancel', handlePointerUp);
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerUp);
+    };
+  }, []);
+
   useFrame((state, rawDelta) => {
     const delta = Math.min(rawDelta, .05);
     elapsed.current += delta;
     const node = group.current;
     if (!node) return;
+
+    if (!isDragging.current) {
+      dragOffset.current.x = MathUtils.lerp(dragOffset.current.x, 0, 0.08);
+      dragOffset.current.y = MathUtils.lerp(dragOffset.current.y, 0, 0.08);
+    }
+
     const smooth = reduced ? 1 : 1 - Math.exp(-6 * delta);
-    node.rotation.y = MathUtils.lerp(node.rotation.y, reduced ? 0 : state.pointer.x * .2 + Math.sin(elapsed.current * .35) * .055, smooth);
-    node.rotation.x = MathUtils.lerp(node.rotation.x, reduced ? 0 : -state.pointer.y * .09, smooth);
+    const targetY = reduced ? 0 : (state.pointer.x * .2 + dragOffset.current.x * .35) + Math.sin(elapsed.current * .35) * .055;
+    const targetX = reduced ? 0 : (-state.pointer.y * .09 - dragOffset.current.y * .18);
+
+    node.rotation.y = MathUtils.lerp(node.rotation.y, targetY, smooth);
+    node.rotation.x = MathUtils.lerp(node.rotation.x, targetX, smooth);
+
     layers.current.forEach((layer, index) => {
       if (!layer) return;
       layer.position.z = MathUtils.lerp(layer.position.z, index === active ? .7 : .012, smooth);
@@ -36,6 +78,7 @@ function DepthWatch({ active, onSelect, reduced }: { active: number; onSelect: (
     state.gl.domElement.dataset['feature'] = features[active]?.name;
     state.gl.domElement.dataset['rotation'] = node.rotation.y.toFixed(4);
   });
+
   return <group ref={group}>
     <mesh>
       <planeGeometry args={[3.094, 4]} />

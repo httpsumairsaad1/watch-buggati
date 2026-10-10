@@ -200,36 +200,675 @@ h1,h2,h3 { font-family: var(--font-display); font-weight: 400; }
 .section-heading p { max-width:310px; font-size:12px; line-height:1.9; color:var(--muted-foreground); }
 .explorer-layout { display:grid; grid-template-columns:1.35fr 1fr; gap:60px; align-items:center; }
 .explorer-image { width:100%; aspect-ratio:1.5; object-fit:cover; }
-.movement-section { overflow:hidden; }
-.movement-layout { grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:70px; }
-.movement-stage { position:relative; height:560px; min-width:0; }
-.movement-poster { position:absolute; inset:7% 0 10%; width:100%; height:83%; object-fit:contain; }
-.movement-canvas { position:absolute; inset:0; background:var(--background); }
-.movement-canvas canvas { touch-action:pan-y; }
-.movement-pin { border:1px solid var(--primary); border-radius:50%; background:var(--glass-surface); color:var(--primary); font-size:10px; height:32px; width:32px; }
-.movement-pin.is-active { background:var(--primary); color:var(--primary-foreground); }
-.movement-caption { position:absolute; bottom:0; left:0; right:0; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; border-top:1px solid var(--border); padding-top:18px; color:var(--muted-foreground); font-size:9px; text-transform:uppercase; pointer-events:none; }
-.movement-caption span:first-child { color:var(--primary); }
-.movement-information { min-width:0; }
-.movement-information .explorer-tabs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
-.movement-information .explorer-tabs button { min-width:0; white-space:normal; }
-.movement-detail-heading { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; margin-top:30px; color:var(--primary); font-size:11px; }
-.movement-arrows { display:flex; gap:8px; }
-.movement-arrows button { border:1px solid var(--border); border-radius:50%; color:var(--muted-foreground); }
-.movement-information .explorer-copy { padding-top:20px; min-height:245px; }
-.movement-detail { animation:movement-reveal .45s ease both; }
-@keyframes movement-reveal { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
-@media(max-width:1000px) { .movement-layout { gap:35px; } .movement-stage { height:480px; } }
-@media(max-width:700px) { .movement-layout { grid-template-columns:minmax(0,1fr); gap:30px; } .movement-stage { height:410px; } .movement-information .explorer-copy { min-height:230px; } .movement-detail-heading { margin-top:20px; } }
-.explorer-tabs { display:flex; border-bottom:1px solid var(--border); gap:20px; }
-.explorer-tabs button { border-radius:0; font-size:10px; padding:12px 0; height:47px; color:var(--muted-foreground); }
-.explorer-tabs button[aria-selected=true] { color:var(--primary); border-bottom:1px solid var(--primary); }
-.explorer-copy { min-height:225px; padding-top:28px; }
-.explorer-copy h3 { font-size:28px; margin-bottom:16px; }
-.explorer-copy p { color:var(--muted-foreground); font-size:12px; line-height:1.9; }
-.technical-detail { display:flex; align-items:center; gap:12px; color:var(--primary); font-size:11px; margin-top:24px; }
-.fuel-gauge { display:flex; gap:3px; }
-.fuel-gauge i { width:5px; height:15px; background:var(--primary); }
+/* ========================================================
+   MODERN 3D HOROLOGY UI: "Beyond the extraordinary."
+   ======================================================== */
+
+.movement-section {
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at 30% 50%, oklch(0.76 0.085 65 / 4%) 0%, transparent 60%),
+              radial-gradient(circle at 80% 30%, oklch(0.8 0.13 205 / 3%) 0%, transparent 50%),
+              var(--background);
+}
+
+.movement-header .live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 10px var(--primary);
+  display: inline-block;
+  animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.movement-layout,
+.explorer-layout.movement-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 48px;
+  align-items: stretch;
+}
+
+/* 3D Movement Stage Card */
+.movement-stage-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.movement-stage-glass {
+  position: relative;
+  border: 1px solid oklch(0.95 0.003 260 / 12%);
+  border-radius: 16px;
+  background: linear-gradient(180deg, oklch(0.16 0.006 285 / 65%) 0%, oklch(0.12 0.006 285 / 90%) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Stage HUD Top */
+.stage-hud-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid oklch(0.95 0.003 260 / 8%);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.stage-hud-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.stage-hud-elevation {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: oklch(0.76 0.085 65 / 12%);
+  border: 1px solid oklch(0.76 0.085 65 / 25%);
+  color: var(--primary);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+/* Stage Canvas & Poster */
+.movement-stage {
+  position: relative;
+  flex: 1;
+  min-height: 520px;
+  height: 520px;
+  min-width: 0;
+  background: radial-gradient(circle at center, oklch(0.76 0.085 65 / 8%) 0%, transparent 65%);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+}
+
+.movement-stage:active {
+  cursor: grabbing;
+}
+
+.movement-poster {
+  position: absolute;
+  inset: 5% 0 8%;
+  width: 100%;
+  height: 87%;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.6));
+}
+
+.movement-canvas {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  pointer-events: auto;
+}
+
+.movement-canvas canvas {
+  touch-action: pan-y pinch-zoom;
+}
+
+/* Hotspots */
+.movement-hotspots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.movement-hotspot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+}
+
+.movement-hotspot:hover,
+.movement-hotspot:focus-visible {
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+.hotspot-pulse {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  width: 28px;
+  height: 28px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid var(--primary);
+  opacity: 0.7;
+  animation: hotspot-ring 2.4s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes hotspot-ring {
+  0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(1.9); opacity: 0; }
+}
+
+.hotspot-core {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: oklch(0.14 0.009 65 / 95%);
+  border: 1.5px solid var(--primary);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7), 0 0 10px oklch(0.76 0.085 65 / 35%);
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+
+.movement-hotspot.is-active .hotspot-core {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: 0 0 20px var(--primary);
+}
+
+.hotspot-pill {
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: oklch(0.14 0.009 65 / 90%);
+  border: 1px solid oklch(0.95 0.003 260 / 18%);
+  backdrop-filter: blur(8px);
+  color: var(--foreground);
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s ease;
+  opacity: 0.85;
+}
+
+.movement-hotspot:hover .hotspot-pill,
+.movement-hotspot.is-active .hotspot-pill {
+  opacity: 1;
+  border-color: var(--primary);
+  color: var(--primary);
+  background: oklch(0.14 0.009 65 / 96%);
+}
+
+/* Drag Chip */
+.stage-drag-chip {
+  position: absolute;
+  bottom: 16px;
+  left: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  background: oklch(0.12 0.006 285 / 80%);
+  border: 1px solid oklch(0.95 0.003 260 / 12%);
+  backdrop-filter: blur(12px);
+  color: var(--muted-foreground);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.animate-spin-slow {
+  animation: spin 10s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Stage HUD Bottom */
+.stage-hud-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-top: 1px solid oklch(0.95 0.003 260 / 8%);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  z-index: 10;
+  pointer-events: none;
+  background: oklch(0.12 0.006 285 / 50%);
+}
+
+/* Information / Cockpit Tabs */
+.movement-information {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.cockpit-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  background: oklch(0.14 0.006 285 / 75%);
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid oklch(0.95 0.003 260 / 10%);
+  backdrop-filter: blur(16px);
+}
+
+.cockpit-tab-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+  min-height: 44px;
+}
+
+.cockpit-tab-btn:hover {
+  color: var(--foreground);
+  background: oklch(0.95 0.003 260 / 4%);
+}
+
+.cockpit-tab-btn.is-active {
+  color: var(--primary);
+  background: oklch(0.18 0.006 285 / 90%);
+  border-color: oklch(0.76 0.085 65 / 30%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.cockpit-tab-num {
+  font-size: 9px;
+  opacity: 0.6;
+}
+
+.cockpit-tab-btn.is-active .cockpit-tab-num {
+  opacity: 1;
+  color: var(--primary);
+}
+
+.cockpit-tab-icon {
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+  transition: color 0.2s ease;
+}
+
+.cockpit-tab-btn.is-active .cockpit-tab-icon {
+  color: var(--primary);
+}
+
+.cockpit-tab-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Complication Card */
+.complication-card {
+  position: relative;
+  border: 1px solid oklch(0.95 0.003 260 / 12%);
+  border-radius: 16px;
+  background: linear-gradient(180deg, oklch(0.16 0.006 285 / 65%) 0%, oklch(0.13 0.006 285 / 85%) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 30px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.complication-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid oklch(0.95 0.003 260 / 8%);
+  padding-bottom: 16px;
+}
+
+.complication-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--technical);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.complication-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.complication-counter {
+  color: var(--primary);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.movement-arrows {
+  display: flex;
+  gap: 6px;
+}
+
+.arrow-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid oklch(0.95 0.003 260 / 14%);
+  background: oklch(0.14 0.006 285 / 60%);
+  color: var(--foreground);
+  transition: all 0.2s ease;
+}
+
+.arrow-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: oklch(0.76 0.085 65 / 12%);
+}
+
+.movement-detail {
+  animation: movement-reveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes movement-reveal {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.complication-title {
+  font-size: 32px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.15;
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+}
+
+.complication-copy {
+  color: var(--muted-foreground);
+  font-size: 13px;
+  line-height: 1.8;
+  margin-bottom: 22px;
+}
+
+/* Telemetry Grid */
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.telemetry-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 10px;
+  background: oklch(0.12 0.006 285 / 70%);
+  border: 1px solid oklch(0.95 0.003 260 / 8%);
+}
+
+.telemetry-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
+}
+
+.telemetry-val {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--foreground);
+  letter-spacing: 0.02em;
+}
+
+/* Technical Detail Banner & Fuel Gauge */
+.technical-detail-banner {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: oklch(0.76 0.085 65 / 6%);
+  border: 1px solid oklch(0.76 0.085 65 / 20%);
+}
+
+.metric-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+.fuel-gauge-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+}
+
+.fuel-gauge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.fuel-led {
+  width: 6px;
+  height: 18px;
+  border-radius: 2px;
+  background: var(--primary);
+  box-shadow: 0 0 8px oklch(0.76 0.085 65 / 50%);
+  animation: fuel-pulse 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes fuel-pulse {
+  from { opacity: 0.85; }
+  to { opacity: 1; }
+}
+
+.fuel-label {
+  color: var(--primary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.complication-actions {
+  display: flex;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid oklch(0.95 0.003 260 / 8%);
+}
+
+.spec-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 20px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Responsive adjustments for Beyond the extraordinary movement section */
+@media (max-width: 1024px) {
+  .movement-layout,
+  .explorer-layout.movement-layout {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 32px;
+  }
+  .movement-stage {
+    height: 480px;
+    min-height: 480px;
+  }
+  .complication-card {
+    padding: 24px;
+  }
+  .complication-title {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .movement-layout,
+  .explorer-layout.movement-layout {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 24px;
+  }
+  .movement-stage-glass {
+    border-radius: 14px;
+  }
+  .movement-stage {
+    height: 390px;
+    min-height: 390px;
+  }
+  .stage-hud-top,
+  .stage-hud-bottom {
+    padding: 10px 14px;
+    font-size: 8px;
+  }
+  .stage-drag-chip {
+    bottom: 10px;
+    left: 10px;
+    font-size: 8px;
+    padding: 4px 8px;
+  }
+  .hotspot-pill {
+    display: none;
+  }
+  .hotspot-core {
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+  }
+  .cockpit-tabs {
+    gap: 6px;
+    padding: 5px;
+    border-radius: 12px;
+  }
+  .cockpit-tab-btn {
+    padding: 10px 4px;
+    font-size: 9px;
+    gap: 5px;
+    flex-direction: column;
+    min-height: 52px;
+  }
+  .cockpit-tab-title {
+    font-size: 9px;
+  }
+  .complication-card {
+    padding: 20px 16px;
+    border-radius: 14px;
+    gap: 16px;
+  }
+  .complication-title {
+    font-size: 24px;
+  }
+  .complication-copy {
+    font-size: 12px;
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+  .telemetry-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .telemetry-item {
+    padding: 8px 6px;
+    text-align: center;
+  }
+  .telemetry-label {
+    font-size: 8px;
+  }
+  .telemetry-val {
+    font-size: 10px;
+  }
+  .fuel-led {
+    width: 4px;
+    height: 15px;
+  }
+  .fuel-label {
+    font-size: 9px;
+  }
+  .spec-link-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .movement-stage {
+    height: 340px;
+    min-height: 340px;
+  }
+  .cockpit-tab-title {
+    font-size: 8px;
+  }
+  .cockpit-tab-num {
+    display: none;
+  }
+}
+
 .spec-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0 45px; }
 .spec-block { border-top:1px solid var(--border); padding:26px 0 32px; }
 .spec-block h3 { font-size:13px; color:var(--primary); margin-bottom:20px; }
